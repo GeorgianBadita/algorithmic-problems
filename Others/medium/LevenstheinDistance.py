@@ -1,10 +1,10 @@
 def levenshteinDistance(str1, str2):
 
     if not str1:
-        return str2
+        return len(str2)
 
     if not str2:
-        return str1
+        return len(str1)
 
     dp = [[0] * len(str1) for _ in range(len(str2))]
 
@@ -30,6 +30,3 @@ def levenshteinDistance(str1, str2):
                                    dp[i - 1][j], dp[i][j - 1])
 
     return dp[-1][-1]
-
-
-print(levenshteinDistance("abc", "yabd"))
