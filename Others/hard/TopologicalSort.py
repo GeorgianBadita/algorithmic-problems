@@ -5,8 +5,9 @@ def make_graph(jobs, deps):
         graph[dep[0]].append(dep[1])
     return graph
 
+
 def topologicalSort(jobs, deps):
-    in_degree = {id:0 for id in jobs}
+    in_degree = {id: 0 for id in jobs}
 
     for dep in deps:
         in_degree[dep[1]] += 1
@@ -24,6 +25,5 @@ def topologicalSort(jobs, deps):
             in_degree[adj] -= 1
             if in_degree[adj] == 0:
                 queue.append(adj)
-    
-    return result if len(result) == len(jobs) else []
 
+    return result if len(result) == len(jobs) else []
