@@ -1,1 +1,8 @@
 .vscode
+Makefile
+Makefile.*
+*.pro
+*.pro.user
+_qmake.stash
+**/**/debug
+build
