@@ -1,93 +1,105 @@
-#include <fstream>
-#include <stack>
-#include <vector>
-#define NMAX 50005
+#include <bits/stdc++.h>
+#define NMAX 100005
 
-using namespace std;
-int n, m, cnt;
-vector<int> G[NMAX], T[NMAX], connectedComs[NMAX];
-stack<int> firstDFS;
-vector<bool> vizNode(NMAX), inComp(NMAX);
+// in-out
+std::ifstream f("/home/geo/Programming/algorithmic-problems/InfoArena/Retele/retele.in");
+std::ofstream g("/home/geo/Programming/algorithmic-problems/InfoArena/Retele/retele.out");
 
+// data
+std::stack<int> firstDfsSt;
+std::vector<int> G[NMAX];
+std::vector<int> T[NMAX];
+std::vector<int> comps[NMAX], poz(NMAX, -1);
+std::vector<bool> firstDfsViz(NMAX), inComp(NMAX);
+
+int n, m, cnt = 0;
+
+// readData
 void readData()
 {
+    f >> n >> m;
     int x, y;
-    ifstream in("retele.in");
-    in >> n >> m;
     for (int i = 0; i < m; i++)
     {
-        in >> x >> y;
-
+        f >> x >> y;
         G[x].push_back(y);
         T[y].push_back(x);
     }
 }
 
-void dfs(int node)
+void dfsFirst(int start)
 {
-    vizNode[node] = true;
-    for (const auto &adj : G[node])
+    firstDfsViz[start] = true;
+    for (auto &adj : G[start])
     {
-        if (!vizNode[adj])
+        if (!firstDfsViz[adj])
         {
-            dfs(adj);
+            dfsFirst(adj);
         }
     }
-    firstDFS.push(node);
+    firstDfsSt.push(start);
 }
 
-void solveDfs(int node, int cnt)
+void dfsSecond(int start)
 {
-    inComp[node] = true;
-    for (const auto &adj : T[node])
+    inComp[start] = true;
+    for (auto &adj : T[start])
     {
         if (!inComp[adj])
         {
-            solveDfs(adj, cnt);
+            dfsSecond(adj);
         }
     }
-    connectedComs[cnt].push_back(node);
+    comps[cnt].push_back(start);
 }
 
+// solve
 void solve()
 {
-    for (int i = 0; i < n; i++)
+    for (int i = 1; i <= n; i++)
     {
-        if (!vizNode[i])
+        if (!firstDfsViz[i])
         {
-            dfs(i);
+            dfsFirst(i);
         }
     }
 
-    cnt = 0;
-    while (!firstDFS.empty())
+    while (!firstDfsSt.empty())
     {
-        int node = firstDFS.top();
+        int node = firstDfsSt.top();
         if (!inComp[node])
         {
-            solveDfs(node, cnt);
+            dfsSecond(node);
             cnt++;
         }
         else
         {
-            firstDFS.pop();
+            firstDfsSt.pop();
         }
     }
 }
 
-void printResult()
+// printSolution
+void printSolution()
 {
-    ofstream out("retele.out");
-    cnt--;
-    out << cnt << '\n';
+    g << cnt << '\n';
     for (int i = 0; i < cnt; i++)
     {
-        out << connectedComs[i].size() << ' ';
-        for (const auto &elem : connectedComs[i])
+        sort(comps[i].begin(), comps[i].end());
+        poz[comps[i][0]] = i;
+    }
+    for (int i = 1; i <= n; i++)
+    {
+        if (poz[i] >= 0)
         {
-            out << elem << ' ';
+            int index = poz[i];
+            g << comps[index].size() << ' ';
+            for (const auto &elem : comps[index])
+            {
+                g << elem << ' ';
+            }
+            g << '\n';
         }
-        out << '\n';
     }
 }
 
@@ -95,6 +107,6 @@ int main()
 {
     readData();
     solve();
-    printResult();
+    printSolution();
     return 0;
 }
