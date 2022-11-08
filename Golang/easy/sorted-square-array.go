@@ -20,5 +20,6 @@ func SortedSquaredArray(array []int) []int {
 
 		idx -= 1
 	}
+
 	return result
 }
