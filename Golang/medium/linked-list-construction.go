@@ -14,79 +14,50 @@ func NewDoublyLinkedList() *DoublyLinkedList {
 }
 
 func (ll *DoublyLinkedList) SetHead(node *Node) {
-	if ll == nil {
-		*ll = *NewDoublyLinkedList()
+	if ll.Head == nil {
 		ll.Head = node
 		ll.Tail = node
-		ll.Head.Prev = nil
-		ll.Tail.Next = nil
-	} else {
-		if ll.Head == nil {
-			ll.Head = node
-			ll.Tail = node
-			ll.Head.Prev = nil
-			ll.Tail.Next = nil
-		} else {
-			if node == ll.Tail {
-				ll.Tail = ll.Tail.Prev
-			}
-			ll.removeBindings(node)
-			ll.Head.Prev = node
-			node.Next = ll.Head
-			ll.Head = node
-			ll.Head.Prev = nil
-		}
+		return
 	}
+	ll.InsertBefore(ll.Head, node)
 }
 
 func (ll *DoublyLinkedList) SetTail(node *Node) {
-	if ll == nil {
-		*ll = *NewDoublyLinkedList()
-		ll.Head = node
-		ll.Tail = node
-		ll.Head.Prev = nil
-		ll.Tail.Next = nil
-	} else {
-		if ll.Head == node {
-			nd := ll.Head
-			ll.Head = ll.Head.Next
-			ll.Head.Prev = nil
-			ll.Tail.Next = nd
-			nd.Prev = ll.Tail
-			ll.Tail = ll.Tail.Next
-			ll.Tail.Next = nil
-		} else if ll.Tail == nil {
-			ll.SetHead(node)
-		} else {
-			ll.removeBindings(node)
-			ll.Tail.Next = node
-			node.Prev = ll.Tail
-			ll.Tail = node
-			ll.Tail.Next = nil
-		}
+	if ll.Tail == nil {
+		ll.SetHead(node)
+		return
 	}
+	ll.InsertAfter(ll.Tail, node)
 }
 
 func (ll *DoublyLinkedList) InsertBefore(node, nodeToInsert *Node) {
-	if node == ll.Head {
-		ll.SetHead(nodeToInsert)
+	if nodeToInsert == ll.Head && nodeToInsert == ll.Tail {
 		return
 	}
-
-	ll.removeBindings(nodeToInsert)
-	prevNode := node.Prev
+	ll.Remove(nodeToInsert)
+	nodeToInsert.Prev = node.Prev
 	nodeToInsert.Next = node
+	if node.Prev == nil {
+		ll.Head = nodeToInsert
+	} else {
+		node.Prev.Next = nodeToInsert
+	}
 	node.Prev = nodeToInsert
-	prevNode.Next = nodeToInsert
-	nodeToInsert.Prev = prevNode
 }
 
 func (ll *DoublyLinkedList) InsertAfter(node, nodeToInsert *Node) {
-	if node == ll.Tail {
-		ll.SetTail(nodeToInsert)
+	if nodeToInsert == ll.Head && nodeToInsert == ll.Tail {
 		return
 	}
-	ll.InsertAfter(node.Next, nodeToInsert)
+	ll.Remove(nodeToInsert)
+	nodeToInsert.Prev = node
+	nodeToInsert.Next = node.Next
+	if node.Next == nil {
+		ll.Tail = nodeToInsert
+	} else {
+		node.Next.Prev = nodeToInsert
+	}
+	node.Next = nodeToInsert
 }
 
 func (ll *DoublyLinkedList) InsertAtPosition(position int, nodeToInsert *Node) {
@@ -95,10 +66,10 @@ func (ll *DoublyLinkedList) InsertAtPosition(position int, nodeToInsert *Node) {
 		return
 	}
 	node := ll.Head
-	currPos := 1
-	for node != nil && currPos != position {
+	currentPosition := 1
+	for node != nil && currentPosition != position {
 		node = node.Next
-		currPos += 1
+		currentPosition += 1
 	}
 	if node != nil {
 		ll.InsertBefore(node, nodeToInsert)
@@ -108,10 +79,10 @@ func (ll *DoublyLinkedList) InsertAtPosition(position int, nodeToInsert *Node) {
 }
 
 func (ll *DoublyLinkedList) RemoveNodesWithValue(value int) {
-	head := ll.Head
-	for head != nil {
-		nodeToRemove := head
-		head = head.Next
+	node := ll.Head
+	for node != nil {
+		nodeToRemove := node
+		node = node.Next
 		if nodeToRemove.Value == value {
 			ll.Remove(nodeToRemove)
 		}
@@ -125,22 +96,18 @@ func (ll *DoublyLinkedList) Remove(node *Node) {
 	if node == ll.Tail {
 		ll.Tail = ll.Tail.Prev
 	}
-
-	ll.removeBindings(node)
+	ll.removeNodeBindings(node)
 }
 
 func (ll *DoublyLinkedList) ContainsNodeWithValue(value int) bool {
-	head := ll.Head
-	for head != nil {
-		if head.Value == value {
-			return true
-		}
-		head = head.Next
+	node := ll.Head
+	for node != nil && node.Value != value {
+		node = node.Next
 	}
-	return false
+	return node != nil
 }
 
-func (ll *DoublyLinkedList) removeBindings(node *Node) {
+func (ll *DoublyLinkedList) removeNodeBindings(node *Node) {
 	if node.Prev != nil {
 		node.Prev.Next = node.Next
 	}
