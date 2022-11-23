@@ -13,10 +13,43 @@ func NewSuffixTrie() SuffixTrie {
 }
 
 func (trie SuffixTrie) PopulateSuffixTrieFrom(str string) {
-	// Write your code here.
+	for idx := len(str) - 1; idx >= 0; idx-- {
+		slice := str[idx:]
+
+		addSliceToTrie(trie, slice)
+	}
 }
 
 func (trie SuffixTrie) Contains(str string) bool {
-	// Write your code here.
-	return false
+	currTrie := trie
+	for sliceIdx := 0; sliceIdx < len(str); sliceIdx++ {
+		byte := str[sliceIdx]
+		if nextTrie, ok := currTrie[byte]; ok {
+			currTrie = nextTrie
+		} else {
+			return false
+		}
+	}
+
+	_, ok := currTrie['*']
+	return ok
+}
+
+func addSliceToTrie(trie SuffixTrie, slice string) {
+	currTrie := trie
+	for sliceIdx := 0; sliceIdx < len(slice); sliceIdx++ {
+		byte := slice[sliceIdx]
+		if nextTrie, ok := currTrie[byte]; ok {
+			currTrie = nextTrie
+		} else {
+			currTrie[byte] = NewSuffixTrie()
+			currTrie = currTrie[byte]
+		}
+	}
+	currTrie['*'] = nil
+}
+
+func main() {
+	trie := NewSuffixTrie()
+	trie.PopulateSuffixTrieFrom("testtest")
 }
